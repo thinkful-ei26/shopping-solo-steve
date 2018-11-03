@@ -39,14 +39,16 @@ function renderShoppingList() {
   // render the shopping list in the DOM
   console.log('`renderShoppingList` ran')
   const shoppingListItemsString = generateShoppingItemsString(STORE.items)
+
   let filteredItems = [...STORE.items]
   if (STORE.hideCompleted) {
+    //if hidecompleted is checked then filter the items that arent checked
     let newFilteredItems = filteredItems.filter(item => !item.checked)
     $('.js-shopping-list').html(generateShoppingItemsString(newFilteredItems))
+  } else {
+    // insert that HTML into the DOM
+    $('.js-shopping-list').html(shoppingListItemsString)
   }
-
-  // insert that HTML into the DOM
-  $('.js-shopping-list').html(shoppingListItemsString)
 }
 
 function addItemToShoppingList(itemName) {
@@ -65,6 +67,7 @@ function handleNewItemSubmit() {
   })
 }
 
+//TogglecheckedListItem
 function toggleCheckedForListItem(itemIndex) {
   console.log('Toggling checked property for item at index ' + itemIndex)
   STORE.items[itemIndex].checked = !STORE.items[itemIndex].checked
@@ -86,6 +89,15 @@ function handleItemCheckClicked() {
   })
 }
 
+function handleCheckboxHidingItemsClicked() {
+  $('.checkbox').on('click', event => {
+    console.log('checkbox hiding items ran')
+    STORE.hideCompleted = !STORE.hideCompleted
+    renderShoppingList()
+  })
+}
+
+//Delete Item
 function deleteItem(itemIndex) {
   console.log(`Deleting item at index ${itemIndex}`)
   // console.log(STORE[itemIndex])
@@ -109,6 +121,7 @@ function handleShoppingList() {
   handleNewItemSubmit()
   handleItemCheckClicked()
   handleDeleteItemClicked()
+  handleCheckboxHidingItemsClicked()
 }
 
 // when the page loads, call `handleShoppingList`
