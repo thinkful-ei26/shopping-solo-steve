@@ -1,13 +1,14 @@
-'use strict'
+const STORE = {
+  items: [
+    { name: 'Macbook Air', checked: false },
+    { name: 'Ipad Pro', checked: false },
+    { name: 'Airpads', checked: true },
+    { name: 'Tesla', checked: false }
+  ],
+  hideCompleted: false
+}
 
-const STORE = [
-  { name: 'apples', checked: false },
-  { name: 'oranges', checked: false },
-  { name: 'milk', checked: true },
-  { name: 'bread', checked: false }
-]
-
-function generateItemElement(item, itemIndex, template) {
+function generateItemElement(item, itemIndex) {
   return `
     <li class="js-item-index-element" data-item-index="${itemIndex}">
       <span class="shopping-item js-shopping-item ${
@@ -37,7 +38,12 @@ function generateShoppingItemsString(shoppingList) {
 function renderShoppingList() {
   // render the shopping list in the DOM
   console.log('`renderShoppingList` ran')
-  const shoppingListItemsString = generateShoppingItemsString(STORE)
+  const shoppingListItemsString = generateShoppingItemsString(STORE.items)
+  let filteredItems = [...STORE.items]
+  if (STORE.hideCompleted) {
+    let newFilteredItems = filteredItems.filter(item => !item.checked)
+    $('.js-shopping-list').html(generateShoppingItemsString(newFilteredItems))
+  }
 
   // insert that HTML into the DOM
   $('.js-shopping-list').html(shoppingListItemsString)
@@ -45,7 +51,7 @@ function renderShoppingList() {
 
 function addItemToShoppingList(itemName) {
   console.log(`Adding "${itemName}" to shopping list`)
-  STORE.push({ name: itemName, checked: false })
+  STORE.items.push({ name: itemName, checked: false })
 }
 
 function handleNewItemSubmit() {
@@ -61,7 +67,7 @@ function handleNewItemSubmit() {
 
 function toggleCheckedForListItem(itemIndex) {
   console.log('Toggling checked property for item at index ' + itemIndex)
-  STORE[itemIndex].checked = !STORE[itemIndex].checked
+  STORE.items[itemIndex].checked = !STORE.items[itemIndex].checked
 }
 
 function getItemIndexFromElement(item) {
@@ -83,7 +89,7 @@ function handleItemCheckClicked() {
 function deleteItem(itemIndex) {
   console.log(`Deleting item at index ${itemIndex}`)
   // console.log(STORE[itemIndex])
-  STORE.splice(itemIndex, 1)
+  STORE.items.splice(itemIndex, 1)
 }
 function handleDeleteItemClicked() {
   $('.js-shopping-list').on('click', '.js-item-delete', event => {
