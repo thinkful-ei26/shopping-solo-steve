@@ -40,22 +40,17 @@ function renderShoppingList() {
   // render the shopping list in the DOM
   console.log('`renderShoppingList` ran');
 
-  let items = [...STORE.items];
+  let items = STORE.items;
   if (STORE.hideCompleted) {
     //If hidecompleted is checked then filter out all the checked items
-    newFilteredItems = items.filter(item => !item.checked);
-    console.log(newFilteredItems);
-    $('.js-shopping-list').html(generateShoppingItemsString(newFilteredItems));
+    items = STORE.items.filter(item => !item.checked);
   }
   if (STORE.searchItem) {
     //if the search bar is not empty then filter the results to be the searched string
-    let searchedItems = items.filter(item =>
-      item.name.includes(STORE.searchItem)
-    );
-    $('.js-shopping-list').html(generateShoppingItemsString(searchedItems));
-  } else {
-    $('.js-shopping-list').html(generateShoppingItemsString(STORE.items));
+    items = STORE.items.filter(item => item.name.includes(STORE.searchItem));
   }
+  const shoppingListItemsString = generateShoppingItemsString(items);
+  $('.js-shopping-list').html(shoppingListItemsString);
 }
 
 function addItemToShoppingList(itemName) {
