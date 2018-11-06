@@ -47,14 +47,14 @@ function renderShoppingList() {
     console.log(newFilteredItems);
     $('.js-shopping-list').html(generateShoppingItemsString(newFilteredItems));
   }
-  if (STORE.searchItem) {
-    //if the search bar is not empty then filter the results to be the searched string
-    let searchedItems = items.filter(item =>
-      item.name.includes(STORE.searchItem)
-    );
-
-    $('.js-shopping-list').html(generateShoppingItemsString(searchedItems));
-  } else {
+  // if (STORE.searchItem) {
+  //   //if the search bar is not empty then filter the results to be the searched string
+  //   let searchedItems = items.filter(item =>
+  //     item.name.includes(STORE.searchItem)
+  //   );
+  //   $('.js-shopping-list').html(generateShoppingItemsString(searchedItems));
+  // }
+  else {
     $('.js-shopping-list').html(generateShoppingItemsString(STORE.items));
   }
 }
