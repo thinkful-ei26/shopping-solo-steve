@@ -1,39 +1,39 @@
 const shoppingList = (function() {
   function generateItemElement(item) {
+    const checkedClass = item.checked ? 'shopping-item__checked' : '';
+    let itemTitle = `<span class="shopping-item ${checkedClass}">${
+      item.name
+    }</span>`;
+
     return `
-      <li class="js-item-index-element" data-item-index="${itemIndex}">
-        <span class="shopping-item js-shopping-item ${
-          item.checked ? 'shopping-item__checked' : ''
-        }">${item.name}</span>
+      <li class="js-item-element" data-item-id="${item.id}">
+        ${itemTitle}
         <div class="shopping-item-controls">
           <button class="shopping-item-toggle js-item-toggle">
-              <span class="button-label">check</span>
+            <span class="button-label">check</span>
           </button>
           <button class="shopping-item-delete js-item-delete">
-              <span class="button-label">delete</span>
+            <span class="button-label">delete</span>
           </button>
         </div>
       </li>`;
   }
 
   function generateShoppingItemsString(shoppingList) {
-    console.log('Generating shopping list element');
     const items = shoppingList.map(item => generateItemElement(item));
     return items.join('');
   }
 
   function render() {
-    // render the shopping list in the DOM
-    console.log('`renderShoppingList` ran');
-
-    let items = STORE.items;
+    let items = [...STORE.items];
+    if (STORE.error) {
+      $('.error-message').html(STORE.error);
+    }
     if (STORE.hideCompleted) {
-      //If hidecompleted is checked then filter out all the checked items
-      items = STORE.items.filter(item => !item.checked);
+      items = items.filter(item => !item.checked);
     }
     if (STORE.searchItem) {
-      //if the search bar is not empty then filter the results to be the searched string
-      items = STORE.items.filter(item => item.name.includes(STORE.searchItem));
+      items = items.filter(item => item.name.includes(STORE.searchItem));
     }
     const shoppingListItemsString = generateShoppingItemsString(items);
     $('.js-shopping-list').html(shoppingListItemsString);
@@ -49,21 +49,30 @@ const shoppingList = (function() {
     $('#js-shopping-list-form').submit(function(event) {
       event.preventDefault();
       const newItemName = $('.js-shopping-list-entry').val();
-      STORE.addItem(newItemName);
-      render();
+      $('.js-shopping-list-entry').val('');
+      api.createItem(
+        newItemName,
+        item => {
+          console.log('making a request to create an item');
+          STORE.addItem(item);
+          render();
+        },
+        error => {
+          STORE.setError(error.responseJSON.message);
+          render();
+        }
+      );
     });
   }
 
   function handleItemCheckClicked() {
     $('.js-shopping-list').on('click', '.js-item-toggle', event => {
       const id = getItemIdFromElement(event.currentTarget);
-      STORE.findAndToggleChecked(id);
-      render();
+      api.updateItem(id, { checked: !STORE.findById(id).checked }, () => {
+        STORE.findAndUpdate(id, { checked: !STORE.findById(id).checked });
+        render();
+      });
     });
-  }
-
-  function setSearchTerm(val) {
-    STORE.searchTerm = val;
   }
 
   function handleDeleteItemClicked() {
@@ -72,21 +81,10 @@ const shoppingList = (function() {
       // get the index of the item in STORE.items
       const id = getItemIdFromElement(event.currentTarget);
       // delete the item
-      STORE.findAndDelete(id);
-      // render the updated shopping list
-      render();
-    });
-  }
-
-  function handleEditShoppingItemSubmit() {
-    $('.js-shopping-list').on('submit', '.js-edit-item', event => {
-      event.preventDefault();
-      const id = getItemIdFromElement(event.currentTarget);
-      const itemName = $(event.currentTarget)
-        .find('.shopping-item')
-        .val();
-      STORE.findAndUpdateName(id);
-      render();
+      api.deleteItem(id, () => {
+        STORE.findAndDelete(id);
+        render();
+      });
     });
   }
 
@@ -109,12 +107,11 @@ const shoppingList = (function() {
     handleNewItemSubmit();
     handleItemCheckClicked();
     handleDeleteItemClicked();
-    handleEditShoppingItemSubmit();
+
     handleToggleFilterClick();
     handleShoppingListSearch();
   }
 
-  // This object contains the only exposed methods from this module:
   return {
     render: render,
     bindEventListeners: bindEventListeners

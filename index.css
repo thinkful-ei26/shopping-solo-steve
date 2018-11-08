@@ -39,6 +39,10 @@ button:hover {
   padding: 20px;
 }
 
+.error-message {
+  color: red;
+}
+
 .shopping-item {
   display: block;
   color: grey;
